@@ -17,14 +17,17 @@ def generate_2d_data():
     return v_x
 
 
+import numpy as np
+
 def dist_euc(point_1, point_2):
     """
-    Retourne la distance euclidienne entre deux points
+    Retourne la distance euclidienne entre deux points de n'importe quelle dimension.
     """
-    distance = (abs(point_1[0]-point_2[0])**2 +
-                abs(point_1[1]-point_2[1])**2)**0.5
+    distance_carree = 0
+    for i in range(len(point_1)):
+        distance_carree += (point_1[i] - point_2[i])**2
+    distance = np.sqrt(distance_carree)
     return distance
-
 
 def dist_manthan(point_1, point_2):
     """
