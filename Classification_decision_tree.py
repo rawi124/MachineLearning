@@ -1,3 +1,6 @@
+"""
+arbre de decision
+"""
 import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
@@ -5,20 +8,26 @@ import matplotlib.pyplot as plt
 
 
 def load_iris_train_data():
-    col_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'type']
-    train_data = pd.read_csv("data/iris_train.csv", skiprows=1, header=None, names=col_names)
+    col_names = ['sepal_length', 'sepal_width',
+                 'petal_length', 'petal_width', 'type']
+    train_data = pd.read_csv("data/iris_train.csv",
+                             skiprows=1, header=None, names=col_names)
     train_data = shuffle(train_data)
-    y = np.array(train_data)[:,-1]
-    x = np.array(train_data)[:,:-1]
+    y = np.array(train_data)[:, -1]
+    x = np.array(train_data)[:, :-1]
     return x, y
 
+
 def load_iris_validation_data():
-    col_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'type']
-    val_data = pd.read_csv("data/iris_validation.csv", skiprows=1, header=None, names=col_names)
+    col_names = ['sepal_length', 'sepal_width',
+                 'petal_length', 'petal_width', 'type']
+    val_data = pd.read_csv("data/iris_validation.csv",
+                           skiprows=1, header=None, names=col_names)
     val_data = shuffle(val_data)
-    y = np.array(val_data)[:,-1]
-    x = np.array(val_data)[:,:-1]
+    y = np.array(val_data)[:, -1]
+    x = np.array(val_data)[:, :-1]
     return x, y
+
 
 def display_dataset(x, y):
     l_y = list(y)
@@ -26,12 +35,13 @@ def display_dataset(x, y):
     print("Proportion de chaque classe dans le dataset")
     print(l_y.count('Setosa'), l_y.count('Virginica'), l_y.count('Versicolor'))
     color = 1 * (y == 'Setosa')
-    color += 2* (y == 'Versicolor')
+    color += 2 * (y == 'Versicolor')
     plt.figure()
     plt.scatter(x[:, 0], x[:, 1], c=color)
     plt.figure()
     plt.scatter(x[:, 2], x[:, 3], c=color)
     plt.show()
+
 
 class Node():
     def __init__(self, index_feature=None, threshold=None, tree_left=None, tree_right=None, info_gain=None, class_value=None):
@@ -59,7 +69,6 @@ class DecisionTree():
         self.min_samples_split = min_samples_split
         self.max_depth = max_depth
 
-
     def split(self, dataset, idx_feature, threshold):
         ''' function to split the data '''
         x = dataset[0]
@@ -74,12 +83,10 @@ class DecisionTree():
         dataset_right = [x_right, y_right]
         return dataset_left, dataset_right
 
-
     def compute_dominante_label(self, y):
         ''' compute the dominante in y '''
         y = list(y)
         return max(y, key=y.count)
-
 
     def information_gain(self, y_parent, y_left_child, y_rigth_child):
         ''' function to compute information gain '''
@@ -89,15 +96,13 @@ class DecisionTree():
         gain -= len(y_parent) * self.gini_index(y_rigth_child) / len(y_parent)
         return gain
 
-
     def gini_index(self, y):
         ''' function to compute gini index '''
         l_y = list(y)
         n = len(l_y)
         # Pour chaque classe, on va mesurer sa proportion dans le dataset (sa probabilité)
         # Puis, on va sommer le carré de ces probabilités et retourner cette valeur
-        return 1-((l_y.count('Setosa')/n)**2 + (l_y.count('Virginica')/n)**2+ (l_y.count('Versicolor')/n)**2)
-
+        return 1-((l_y.count('Setosa')/n)**2 + (l_y.count('Virginica')/n)**2 + (l_y.count('Versicolor')/n)**2)
 
     def print_tree(self, tree=None, level=0):
         ''' display the decision tree '''
@@ -106,78 +111,49 @@ class DecisionTree():
             tree = self.root
 
         if tree.class_value is not None:
-            print("%sLEAF: %s"%('\t'*level, tree.class_value))
+            print("%sLEAF: %s" % ('\t'*level, tree.class_value))
 
         else:
-            print("%sDECISION x%d <= %f"%('\t'*level, tree.idx_feature, tree.threshold))
+            print("%sDECISION x%d <= %f" %
+                  ('\t'*level, tree.idx_feature, tree.threshold))
             if tree.left is not None:
                 self.print_tree(tree.left, level+1)
             if tree.right is not None:
                 self.print_tree(tree.right, level+1)
 
-
     def build_tree(self, dataset, curr_depth=0):
         x, y = dataset[0], dataset[1]
         nb_samples, nb_features = np.shape(x)
 
-        # Si la profondeur maximum n'est pas atteinte
-            # Trouver la meilleure séparation
-            # Si la séparation a apporté un gain d'information
-                #left_subtree = self.build_tree(..., curr_depth+1)
-                #right_subtree = self.build_tree(..., curr_depth+1)
-
-                # On retourne un noeud avec l'indice de la feature utilisée et le seuil,
-                # le sous-arbre gauche et le sous-arbre droit ainsi que l'information_gain
-
-        # Si profondeur maximale atteinte ou que le noeud est pur
-        # On calcule le label dominant
-        # retourne le noeud (feuille) avec le label dominant
-
-
     def get_best_split(self, dataset):
         ''' function to find the best split '''
-        # Dans cette fonction, on cherche la séparation qui permet d'avoir
-        # la séparation de donnée la plus homogène (soit un gain d'information maximal)
 
-        # Pour garder toutes les informations de cette séparation
-        # nous allons utiliser un dictionnaire
-        # l'indice de la feature à utiliser, la valeur du seuil
-        # le sous-dataset gauche et droit et le gain d'information
         best_split = {}
-        
+
         val_possibles = list((np.array(dataset[0])).transpose())
         l_features_distincts = []
-        for val in val_possibles :
-        	l_features_distincts.append(set(val))
+        for val in val_possibles:
+            l_features_distincts.append(set(val))
 
         nb_features = len(l_features_distincts)
         meilleur_gain = 0
         i = 0
-        while i < nb_features : 
-        	for feature in l_features_distincts[i] :
-        		dataset_left, dataset_right = self.split( dataset, i, feature)
-        		if (len(dataset_left)>0 and len(dataset_right)>0):
-        			#estce que dans dataset[0] il ya les x et dans data[1] ya label 
-        			info_gain = self.information_gain( dataset[1], dataset_left[1], dataset_right[1])
-        			if info_gain > meilleur_gain :
-        				best = i, feature, dataset_left, dataset_right, info_gain
-        	i += 1
-        		
-		
-        # Pour toutes les features
-            # Pour toutes les valeurs possibles
-                # Séparer les données selon cette valeur
-                # Si le dataset gauche et le dataset droit ne sont pas vides
-                    # Calcule du gain d'information de cette séparation
+        while i < nb_features:
+            for feature in l_features_distincts[i]:
+                dataset_left, dataset_right = self.split(dataset, i, feature)
+                if (len(dataset_left) > 0 and len(dataset_right) > 0):
+                    info_gain = self.information_gain(
+                        dataset[1], dataset_left[1], dataset_right[1])
+                    if info_gain > meilleur_gain:
+                        best = i, feature, dataset_left, dataset_right, info_gain
+            i += 1
 
-        # Retourner le dictionnaire best split
         best_split[(best[0], best[1])] = best[2], best[3], best[4]
         return best_split
 
     def fit(self, x, y):
         ''' function to train the tree '''
         dataset = np.concatenate((x, y), axis=1)
-        # Appeler la constructeur de l'arbre de décision et l'assigner à la racine
 
     def predict_one(self, x):
         pass
@@ -185,18 +161,10 @@ class DecisionTree():
     def predict_all(self, x):
         pass
 
+
 if __name__ == "__main__":
-    n  = load_iris_train_data()
-    #print(x_train)
-
-    x_val, y_val  = load_iris_validation_data()
-
-    # print("Display dataset")
-    #display_dataset(x_train, y_train)
-    # display_dataset(x_val, y_val)
-
-    # Afficher l'arbre
-    # Faire un abre manuellement
+    n = load_iris_train_data()
+    x_val, y_val = load_iris_validation_data()
     fake_tree = DecisionTree()
     feuille1 = Node(class_value='Versicolor')
     feuille2 = Node(class_value='Setosa')
@@ -204,12 +172,7 @@ if __name__ == "__main__":
     node1 = Node(1, 1.5, feuille1, feuille2, 0.5)
     node2 = Node(2, 2, node1, feuille3, 0.6)
     fake_tree.root = node1
-
     fake_tree.print_tree()
     c = DecisionTree()
-
     best = c.get_best_split(n)
     print(best)
-    # Fit le modèle
-
-    # Test le modèle
