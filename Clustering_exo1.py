@@ -17,8 +17,6 @@ def generate_2d_data():
     return v_x
 
 
-import numpy as np
-
 def dist_euc(point_1, point_2):
     """
     Retourne la distance euclidienne entre deux points de n'importe quelle dimension.
